@@ -107,7 +107,7 @@ describe("DEX", function () {
   it("Buy USDT without Approve", async function () {
     // await usdt.connect(owner).approve(dex.address, 1223000000)
     await expect(dex.connect(owner).buyWithUSDT(1223000000)).to.be.revertedWith(
-      "ERC20: insufficient allowance"
+      "You must approve the contract to spend USDT"
     );
   });
 

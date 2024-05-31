@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "hardhat/console.sol";
 
 contract Dex is Ownable, ReentrancyGuard {
     event Bought(uint256 amount);
@@ -21,6 +22,10 @@ contract Dex is Ownable, ReentrancyGuard {
             address(0x694AA1769357215DE4FAC081bf1f309aDC325306)
         );
     }
+
+      fallback() external payable {}
+
+      receive() external payable {}
 
     function buy() public payable nonReentrant {
         uint256 minimumPrice = getETHForUSDT();
@@ -42,6 +47,15 @@ contract Dex is Ownable, ReentrancyGuard {
         // Check the contract's token balance
         uint256 dexBalance = token.balanceOf(address(this));
         require(amountTobuy <= dexBalance, "Not enough tokens in the reserve");
+
+        uint256 allowance = usdt.allowance(msg.sender, address(this));
+
+
+        console.log("allowance",allowance);
+        require(
+            allowance >= amount,
+            "You must approve the contract to spend USDT"
+        );
 
         // Transfer USDT from the sender to the contract
         require(
