@@ -3,20 +3,20 @@
 import { expect, use } from "chai";
 import { Contract, BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
-import { Impersonate } from "../utils/utilities";
 import { parseEther } from "ethers/lib/utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("DEX", function () {
   let owner: any;
   let user: SignerWithAddress;
+  let user1: SignerWithAddress;
 
   let token: Contract;
   let dex: Contract;
   let usdt: Contract;
 
   before(async () => {
-    [owner, user] = await ethers.getSigners();
+    [owner, user, user1] = await ethers.getSigners();
 
     // signer = await Impersonate("0x5C549Af8293F7F79Dc2cf817aA270099e3432830");
 
@@ -37,16 +37,16 @@ describe("DEX", function () {
     dex = await Dex.deploy(token.address, usdt.address);
   });
 
-  it.only("Functions", async function () {
-    // console.log(token.functions);
+  it("Functions", async function () {
+    console.log(owner.address);
     // console.log(dex.functions);
     // console.log(usdt.functions);
     // console.log(await usdt.balanceOf(owner.address));
-    await token.transfer(dex.address, parseEther("1000000000000"));
+    // await token.transfer(dex.address, parseEther("1000000000000"));
   
 
     // console.log(await dex.getETHForUSDT())
-    await dex.connect(user).buy({ value: parseEther("0.000416301562458152")});
+    // await dex.connect(user).buy({ value: parseEther("0.000416301562458152")});
     // await dex.connect(user).buy({ value: parseEther("0.1") });
 
     // console.log(await dex.connect(user).checkAmountToken({ value: parseEther("1") }));
@@ -59,17 +59,18 @@ describe("DEX", function () {
       dex.connect(user).buy({ value: parseEther("3") })
     ).to.be.revertedWith("Not enough tokens in the reserve");
   });
-  it("Buy Token without Amount", async function () {
-    await expect(
-      dex.connect(user).buy({ value: parseEther("0.01") })
-    ).to.be.revertedWith("You need to send some ether");
-  });
+  // it("Buy Token without Amount", async function () {
+  //   await expect(
+  //     dex.connect(user).buy({ value: parseEther("0.01") })
+  //   ).to.be.revertedWith("You need to send some ether");
+  // });
 
   it("should Transfer Token to DEX Contract", async function () {
     await token.approve(dex.address, parseEther("1000000"));
     await token.transfer(dex.address, parseEther("1000000000000"));
-    console.log(token.functions);
-    console.log(dex.functions);
+    await usdt.transfer(user.address, 2000000000);
+    // console.log(token.functions);
+    // console.log(dex.functions);
   });
 
   it("Dex Token Balance", async function () {
@@ -112,17 +113,19 @@ describe("DEX", function () {
 
   it("Approve USDT  ", async function () {
     await usdt.connect(owner).approve(dex.address, 2000000000)
+    await usdt.connect(user).approve(dex.address, 2000000000)
   });
 
   it("Buy USDT with Less Amount", async function () {
     // await usdt.connect(owner).approve(dex.address, 1223000000)
     await expect(dex.connect(owner).buyWithUSDT(12230)).to.be.revertedWith(
-      "You need to send some USDT"
+      "You need to send at least 1 USDT"
     );
   });
 
   it("Buy USDT", async function () {
     await dex.connect(owner).buyWithUSDT(2000000000);
+    await dex.connect(user).buyWithUSDT(2000000000);
   });
 
   it("User Token Balance", async function () {

@@ -24,14 +24,14 @@ async function main() {
 
   const signers: Signer[] = await ethers.getSigners()
   const Dex = await ethers.getContractFactory("Dex", signers[1]);
-  const dexToken = await Dex.deploy("0xFeC72a81bd609df200787B8bb97A1b8f39178203","0x6447C7690A5958C800D460256c870301CF845aE2");
+  const dexToken = await Dex.deploy("0xFeC72a81bd609df200787B8bb97A1b8f39178203","0x7169D38820dfd117C3FA1f22a697dBA58d90BA06");
 
 
       await dexToken.deployTransaction.wait(5);
-      console.log("Ognnn",dexToken.address);
+      console.log("dexToken",dexToken.address);
       
 
-      await verify(dexToken.address, ["0xFeC72a81bd609df200787B8bb97A1b8f39178203","0x6447C7690A5958C800D460256c870301CF845aE2"]);
+      await verify(dexToken.address, ["0xFeC72a81bd609df200787B8bb97A1b8f39178203","0x7169D38820dfd117C3FA1f22a697dBA58d90BA06"]);
 
 
       // npx hardhat verify  --contract "contracts/OganessonToken.sol:OganessonToken"  --network sepolia 0xa6aA33Cdf55B49eaA9b6f3E91D4eD4747b791379
