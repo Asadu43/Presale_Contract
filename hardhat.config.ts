@@ -67,23 +67,14 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.0",
+        version: "0.8.24",
         settings: {
           optimizer: {
             runs: 200,
             enabled: true
           }
         }
-      },
-      {
-        version: "0.8.4",
-        settings: {
-          optimizer: {
-            runs: 200,
-            enabled: true
-          }
-        }
-      },
+      }
     ],
   },
   defaultNetwork: "hardhat",

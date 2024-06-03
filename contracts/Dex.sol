@@ -1,20 +1,22 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "hardhat/console.sol";
 
 contract Dex is Ownable, ReentrancyGuard {
     event Bought(uint256 amount);
     event Sold(uint256 amount);
+
+    using SafeERC20 for IERC20;
     IERC20 public token;
     IERC20 public usdt;
     uint256 public rate = 1000000 ether; // 1 Million
     AggregatorV3Interface internal priceFeed;
 
-    constructor(IERC20 _tokenAddress, IERC20 _usdt) {
+    constructor(IERC20 _tokenAddress, IERC20 _usdt) Ownable(msg.sender) {
         token = _tokenAddress;
         usdt = _usdt;
         // mainnet Address for ETH/USD price feed =
@@ -23,9 +25,9 @@ contract Dex is Ownable, ReentrancyGuard {
         );
     }
 
-      fallback() external payable {}
+    fallback() external payable {}
 
-      receive() external payable {}
+    receive() external payable {}
 
     function buy() public payable nonReentrant {
         uint256 minimumPrice = getETHForUSDT();
@@ -48,20 +50,8 @@ contract Dex is Ownable, ReentrancyGuard {
         uint256 dexBalance = token.balanceOf(address(this));
         require(amountTobuy <= dexBalance, "Not enough tokens in the reserve");
 
-        uint256 allowance = usdt.allowance(msg.sender, address(this));
-
-
-        console.log("allowance",allowance);
-        require(
-            allowance >= amount,
-            "You must approve the contract to spend USDT"
-        );
-
         // Transfer USDT from the sender to the contract
-        require(
-            usdt.transferFrom(msg.sender, address(this), amount),
-            "USDT transfer failed"
-        );
+        usdt.safeTransferFrom(msg.sender, address(this), amount);
 
         // Transfer the tokens to the sender
         require(
