@@ -25,10 +25,6 @@ contract Dex is Ownable, ReentrancyGuard {
         );
     }
 
-    fallback() external payable {}
-
-    receive() external payable {}
-
     function buy() public payable nonReentrant {
         uint256 minimumPrice = getETHForUSDT();
         require(msg.value >= minimumPrice, "You need to send some ether");
